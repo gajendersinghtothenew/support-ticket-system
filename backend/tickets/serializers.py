@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from tickets.models import Ticket
+from tickets.services.workflow import WorkflowError, transition
 
 User = get_user_model()
 
@@ -90,6 +91,23 @@ class TicketSerializer(serializers.ModelSerializer):
                 "Description must be at least 10 characters long."
             )
         return value
+
+    def update(self, instance, validated_data):
+        new_status = validated_data.pop("status", None)
+        user = self.context["request"].user
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if new_status is not None and new_status != instance.status:
+            try:
+                transition(instance, new_status, user)
+            except WorkflowError as exc:
+                raise serializers.ValidationError({"status": exc.message}) from exc
+        else:
+            instance.save()
+
+        return instance
 
 
 class TicketCreateSerializer(serializers.ModelSerializer):

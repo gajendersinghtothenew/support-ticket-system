@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.permissions import is_agent_or_admin
 from comments.models import Comment
 from tickets.serializers import UserSummarySerializer
 
@@ -42,6 +43,14 @@ class CommentSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate_is_internal(self, value):
+        request = self.context.get("request")
+        if value and request and not is_agent_or_admin(request.user):
+            raise serializers.ValidationError(
+                "Only agents can mark comments as internal."
+            )
+        return value
+
 
 class CommentCreateSerializer(serializers.ModelSerializer):
     """
@@ -65,10 +74,8 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate_is_internal(self, value):
-        # Customers cannot create internal notes; enforced here until
-        # role-based permissions are wired in the view layer.
         request = self.context.get("request")
-        if value and request and not getattr(request.user, "is_staff", False):
+        if value and request and not is_agent_or_admin(request.user):
             raise serializers.ValidationError(
                 "Only agents can create internal comments."
             )

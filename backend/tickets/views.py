@@ -1,8 +1,9 @@
+from accounts.permissions import is_agent_or_admin
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from tickets.models import Ticket
+from tickets.permissions import TicketPermission
 from tickets.serializers import (
     TicketCreateSerializer,
     TicketListSerializer,
@@ -16,10 +17,13 @@ class TicketListCreateView(generics.ListCreateAPIView):
     POST /api/tickets/  — create a new ticket
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [TicketPermission]
 
     def get_queryset(self):
-        return Ticket.objects.select_related("created_by", "assigned_to")
+        queryset = Ticket.objects.select_related("created_by", "assigned_to")
+        if not is_agent_or_admin(self.request.user):
+            queryset = queryset.filter(created_by=self.request.user)
+        return queryset
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -47,8 +51,11 @@ class TicketDetailView(generics.RetrieveUpdateDestroyAPIView):
     DELETE /api/tickets/{id}/  — delete a ticket
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [TicketPermission]
     serializer_class = TicketSerializer
 
     def get_queryset(self):
-        return Ticket.objects.select_related("created_by", "assigned_to")
+        queryset = Ticket.objects.select_related("created_by", "assigned_to")
+        if not is_agent_or_admin(self.request.user):
+            queryset = queryset.filter(created_by=self.request.user)
+        return queryset

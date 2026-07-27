@@ -2,7 +2,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
+from accounts.permissions import is_agent_or_admin
 from comments.models import Comment
+from comments.permissions import CommentPermission
 from comments.serializers import CommentCreateSerializer, CommentSerializer
 from tickets.models import Ticket
 
@@ -13,36 +15,32 @@ class CommentListCreateView(generics.ListCreateAPIView):
     POST /api/comments/  — create a new comment
     """
 
-    # Authentication and permissions will be added in a later step.
-    permission_classes = []
+    permission_classes = [CommentPermission]
 
     def get_queryset(self):
         """
-        Return all comments, optionally filtered by ticket ID.
+        Return comments the user is allowed to see.
 
         Supports ?ticket=<id> so clients can load the thread for a
         specific ticket without a separate nested route.
         """
         queryset = Comment.objects.select_related("ticket", "author")
+        if not is_agent_or_admin(self.request.user):
+            queryset = queryset.filter(
+                ticket__created_by=self.request.user,
+                is_internal=False,
+            )
         ticket_id = self.request.query_params.get("ticket")
         if ticket_id is not None:
             queryset = queryset.filter(ticket_id=ticket_id)
         return queryset
 
     def get_serializer_class(self):
-        """Use the create serializer for POST, read serializer for GET."""
         if self.request.method == "POST":
             return CommentCreateSerializer
         return CommentSerializer
 
     def create(self, request, *args, **kwargs):
-        """
-        Create a comment on a ticket.
-
-        Expects `ticket` (ID) in the request body along with `body`.
-        The ticket is resolved here and passed to CommentCreateSerializer
-        via context; author is set from request.user inside the serializer.
-        """
         ticket_id = request.data.get("ticket")
         if not ticket_id:
             return Response(
@@ -50,7 +48,11 @@ class CommentListCreateView(generics.ListCreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        ticket = get_object_or_404(Ticket, pk=ticket_id)
+        ticket_queryset = Ticket.objects.filter(pk=ticket_id)
+        if not is_agent_or_admin(request.user):
+            ticket_queryset = ticket_queryset.filter(created_by=request.user)
+        ticket = get_object_or_404(ticket_queryset)
+
         serializer = self.get_serializer(
             data=request.data,
             context={**self.get_serializer_context(), "ticket": ticket},
@@ -74,9 +76,14 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     DELETE /api/comments/{id}/  — delete a comment
     """
 
-    permission_classes = []
+    permission_classes = [CommentPermission]
     serializer_class = CommentSerializer
 
     def get_queryset(self):
-        """Return a single comment with related ticket and author preloaded."""
-        return Comment.objects.select_related("ticket", "author")
+        queryset = Comment.objects.select_related("ticket", "author")
+        if not is_agent_or_admin(self.request.user):
+            queryset = queryset.filter(
+                ticket__created_by=self.request.user,
+                is_internal=False,
+            )
+        return queryset
