@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import AppLayout from '../components/layout/AppLayout'
 import CreateTicketPage from '../pages/CreateTicketPage'
 import DashboardPage from '../pages/DashboardPage'
+import EditTicketPage from '../pages/EditTicketPage'
 import LoginPage from '../pages/LoginPage'
 import RegisterPage from '../pages/RegisterPage'
 import TicketDetailPage from '../pages/TicketDetailPage'
@@ -34,6 +35,7 @@ export default function AppRoutes() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/tickets" element={<TicketListPage />} />
           <Route path="/tickets/new" element={<CreateTicketPage />} />
+          <Route path="/tickets/:id/edit" element={<EditTicketPage />} />
           <Route path="/tickets/:id" element={<TicketDetailPage />} />
         </Route>
       </Route>

@@ -1,0 +1,94 @@
+.ticket-status-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+}
+
+.ticket-status-actions__current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ticket-status-actions__current h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: #334155;
+}
+
+.ticket-status-actions__hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.ticket-status-actions__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748b;
+}
+
+.ticket-status-actions__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ticket-status-actions__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ticket-status-actions__form label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ticket-status-actions__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ticket-status-actions__row select {
+  flex: 1;
+  min-width: 12rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font: inherit;
+  background: #ffffff;
+}
+
+.ticket-status-actions__row select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+  border-color: #3b82f6;
+}
+
+.ticket-status-actions__error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #b91c1c;
+}
+
+@media (max-width: 640px) {
+  .ticket-status-actions__row {
+    flex-direction: column;
+  }
+
+  .ticket-status-actions__row .button {
+    width: 100%;
+    justify-content: center;
+  }
+}

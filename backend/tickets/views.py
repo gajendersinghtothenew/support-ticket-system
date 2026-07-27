@@ -1,7 +1,9 @@
 from accounts.permissions import is_agent_or_admin
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework.response import Response
 
+from tickets.filters import TicketFilter
 from tickets.models import Ticket
 from tickets.permissions import TicketPermission
 from tickets.serializers import (
@@ -18,6 +20,8 @@ class TicketListCreateView(generics.ListCreateAPIView):
     """
 
     permission_classes = [TicketPermission]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TicketFilter
 
     def get_queryset(self):
         queryset = Ticket.objects.select_related("created_by", "assigned_to")

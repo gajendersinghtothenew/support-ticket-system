@@ -141,3 +141,27 @@ class TicketAPITestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.ticket.refresh_from_db()
         self.assertEqual(self.ticket.status, Ticket.Status.IN_PROGRESS)
+
+    def test_filter_tickets_by_status(self):
+        self.ticket.status = Ticket.Status.IN_PROGRESS
+        self.ticket.save(update_fields=["status"])
+        request = self.factory.get("/api/tickets/?status=in_progress")
+        force_authenticate(request, user=self.agent)
+        response = TicketListCreateView.as_view()(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+
+    def test_search_tickets_by_title(self):
+        request = self.factory.get("/api/tickets/?search=email")
+        force_authenticate(request, user=self.agent)
+        response = TicketListCreateView.as_view()(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+
+    def test_filter_tickets_by_priority(self):
+        self.ticket.priority = Ticket.Priority.HIGH
+        self.ticket.save(update_fields=["priority"])
+        request = self.factory.get("/api/tickets/?priority=high")
+        force_authenticate(request, user=self.agent)
+        response = TicketListCreateView.as_view()(request)
+        self.assertEqual(response.data["count"], 1)

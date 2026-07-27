@@ -36,3 +36,26 @@ export const PRIORITY_BADGE_VARIANTS = {
   high: 'warning',
   urgent: 'danger',
 }
+
+/** Mirrors backend tickets/services/workflow.py AGENT_TRANSITIONS */
+export const AGENT_STATUS_TRANSITIONS = {
+  open: ['in_progress', 'closed'],
+  in_progress: ['waiting_on_customer', 'resolved', 'closed'],
+  waiting_on_customer: ['in_progress'],
+  resolved: ['closed', 'reopened'],
+  reopened: ['in_progress'],
+  closed: ['reopened'],
+}
+
+/** Mirrors backend CUSTOMER_TRANSITIONS */
+export const CUSTOMER_STATUS_TRANSITIONS = {
+  resolved: ['reopened'],
+  closed: ['reopened'],
+}
+
+export function getAllowedStatusTransitions(currentStatus, role) {
+  if (role === 'agent' || role === 'admin') {
+    return AGENT_STATUS_TRANSITIONS[currentStatus] || []
+  }
+  return CUSTOMER_STATUS_TRANSITIONS[currentStatus] || []
+}

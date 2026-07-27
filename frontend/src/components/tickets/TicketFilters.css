@@ -1,0 +1,53 @@
+.ticket-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.ticket-filters__search label,
+.ticket-filters__field label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.ticket-filters__search input,
+.ticket-filters__field select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font: inherit;
+  background: #ffffff;
+}
+
+.ticket-filters__search input:focus,
+.ticket-filters__field select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+  border-color: #3b82f6;
+}
+
+.ticket-filters__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.ticket-filters__clear {
+  align-self: flex-start;
+}
+
+@media (max-width: 768px) {
+  .ticket-filters__grid {
+    grid-template-columns: 1fr;
+  }
+}

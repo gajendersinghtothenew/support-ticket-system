@@ -5,6 +5,10 @@ import EmptyState from '../components/common/EmptyState'
 import ErrorMessage from '../components/common/ErrorMessage'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import TicketCard from '../components/tickets/TicketCard'
+import TicketFilters, {
+  EMPTY_FILTERS,
+  hasActiveFilters,
+} from '../components/tickets/TicketFilters'
 import { getApiErrorMessage } from '../utils/errors'
 import './TicketListPage.css'
 
@@ -14,15 +18,19 @@ export default function TicketListPage() {
   const [page, setPage] = useState(1)
   const [hasNext, setHasNext] = useState(false)
   const [hasPrevious, setHasPrevious] = useState(false)
+  const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const fetchTickets = useCallback(async (pageNumber = 1) => {
+  const fetchTickets = useCallback(async (pageNumber, activeFilters) => {
     setIsLoading(true)
     setError('')
 
     try {
-      const data = await listTickets({ page: pageNumber })
+      const data = await listTickets({
+        page: pageNumber,
+        ...activeFilters,
+      })
       setTickets(data.results)
       setCount(data.count)
       setHasNext(Boolean(data.next))
@@ -40,23 +48,25 @@ export default function TicketListPage() {
   }, [])
 
   useEffect(() => {
-    fetchTickets(page)
-  }, [fetchTickets, page])
+    const timer = window.setTimeout(() => {
+      fetchTickets(1, filters)
+    }, filters.search ? 300 : 0)
 
-  if (isLoading) {
-    return (
-      <main className="ticket-list-page">
-        <LoadingSpinner label="Loading tickets..." />
-      </main>
-    )
+    return () => window.clearTimeout(timer)
+  }, [filters, fetchTickets])
+
+  function handleFilterChange(nextFilters) {
+    setFilters(nextFilters)
+    setPage(1)
   }
 
-  if (error) {
-    return (
-      <main className="ticket-list-page">
-        <ErrorMessage message={error} onRetry={() => fetchTickets(page)} />
-      </main>
-    )
+  function handleClearFilters() {
+    setFilters(EMPTY_FILTERS)
+    setPage(1)
+  }
+
+  function handlePageChange(nextPage) {
+    fetchTickets(nextPage, filters)
   }
 
   return (
@@ -68,10 +78,24 @@ export default function TicketListPage() {
         </div>
       </header>
 
-      {tickets.length === 0 ? (
+      <TicketFilters
+        filters={filters}
+        onChange={handleFilterChange}
+        onClear={handleClearFilters}
+      />
+
+      {isLoading ? (
+        <LoadingSpinner label="Loading tickets..." />
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={() => fetchTickets(page, filters)} />
+      ) : tickets.length === 0 ? (
         <EmptyState
-          title="No tickets yet"
-          message="Tickets you create or have access to will appear here."
+          title={hasActiveFilters(filters) ? 'No matching tickets' : 'No tickets yet'}
+          message={
+            hasActiveFilters(filters)
+              ? 'Try adjusting your search or filters.'
+              : 'Tickets you create or have access to will appear here.'
+          }
         />
       ) : (
         <>
@@ -91,7 +115,7 @@ export default function TicketListPage() {
                 type="button"
                 className="button button--secondary"
                 disabled={!hasPrevious}
-                onClick={() => setPage((current) => current - 1)}
+                onClick={() => handlePageChange(page - 1)}
               >
                 Previous
               </button>
@@ -100,7 +124,7 @@ export default function TicketListPage() {
                 type="button"
                 className="button button--secondary"
                 disabled={!hasNext}
-                onClick={() => setPage((current) => current + 1)}
+                onClick={() => handlePageChange(page + 1)}
               >
                 Next
               </button>

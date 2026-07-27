@@ -26,3 +26,20 @@ export function getApiErrorMessage(error, fallback = 'Something went wrong.') {
   const message = error.data[firstField]
   return Array.isArray(message) ? message[0] : message
 }
+
+export function getApiFieldErrors(error) {
+  if (!(error instanceof ApiError) || !error.data || typeof error.data !== 'object') {
+    return {}
+  }
+
+  const fieldErrors = {}
+
+  Object.entries(error.data).forEach(([field, value]) => {
+    if (field === 'detail' || field === 'non_field_errors') {
+      return
+    }
+    fieldErrors[field] = Array.isArray(value) ? value[0] : value
+  })
+
+  return fieldErrors
+}

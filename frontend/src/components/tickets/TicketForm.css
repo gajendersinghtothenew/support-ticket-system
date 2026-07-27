@@ -1,0 +1,106 @@
+.ticket-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 720px;
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.ticket-form__header h1 {
+  margin: 0 0 0.35rem;
+}
+
+.ticket-form__header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.ticket-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ticket-form__field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ticket-form__field input,
+.ticket-form__field textarea,
+.ticket-form__field select {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font: inherit;
+  background: #ffffff;
+}
+
+.ticket-form__field input:focus,
+.ticket-form__field textarea:focus,
+.ticket-form__field select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+  border-color: #3b82f6;
+}
+
+.ticket-form__field input[aria-invalid='true'],
+.ticket-form__field textarea[aria-invalid='true'],
+.ticket-form__field select[aria-invalid='true'] {
+  border-color: #ef4444;
+}
+
+.ticket-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.ticket-form__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.ticket-form__field-error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #b91c1c;
+}
+
+.ticket-form__error {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.875rem;
+}
+
+.ticket-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+@media (max-width: 640px) {
+  .ticket-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-form__actions {
+    flex-direction: column-reverse;
+  }
+
+  .ticket-form__actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+}

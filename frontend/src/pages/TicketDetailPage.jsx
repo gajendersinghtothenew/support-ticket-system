@@ -2,24 +2,30 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { createComment, listComments } from '../api/comments'
-import { getTicket } from '../api/tickets'
+import { getTicket, updateTicketStatus } from '../api/tickets'
 import CommentForm from '../components/comments/CommentForm'
 import CommentList from '../components/comments/CommentList'
 import EmptyState from '../components/common/EmptyState'
 import ErrorMessage from '../components/common/ErrorMessage'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import Notification from '../components/common/Notification'
 import TicketMeta from '../components/tickets/TicketMeta'
+import TicketStatusActions from '../components/tickets/TicketStatusActions'
+import { useAuth } from '../context/AuthContext'
+import { TICKET_STATUSES } from '../utils/constants'
 import { getApiErrorMessage } from '../utils/errors'
 import './TicketDetailPage.css'
 
 export default function TicketDetailPage() {
   const { id } = useParams()
+  const { user } = useAuth()
   const [ticket, setTicket] = useState(null)
   const [comments, setComments] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isCommentsLoading, setIsCommentsLoading] = useState(true)
   const [error, setError] = useState('')
   const [commentsError, setCommentsError] = useState('')
+  const [notification, setNotification] = useState(null)
 
   const fetchTicket = useCallback(async () => {
     setIsLoading(true)
@@ -68,6 +74,25 @@ export default function TicketDetailPage() {
     setComments((current) => [...current, created])
   }
 
+  async function handleStatusChange(newStatus) {
+    setNotification(null)
+    try {
+      const updatedTicket = await updateTicketStatus(id, newStatus)
+      setTicket(updatedTicket)
+      setNotification({
+        type: 'success',
+        message: `Status updated to ${TICKET_STATUSES[newStatus] || newStatus}.`,
+      })
+    } catch (updateError) {
+      const message = getApiErrorMessage(updateError, 'Unable to update status.')
+      setNotification({
+        type: 'error',
+        message,
+      })
+      throw new Error(message)
+    }
+  }
+
   if (isLoading) {
     return (
       <main className="ticket-detail-page">
@@ -107,9 +132,20 @@ export default function TicketDetailPage() {
 
   return (
     <main className="ticket-detail-page">
+      {notification ? (
+        <Notification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      ) : null}
+
       <div className="ticket-detail-page__toolbar">
         <Link to="/tickets" className="button button--secondary">
           Back to Tickets
+        </Link>
+        <Link to={`/tickets/${ticket.id}/edit`} className="button button--primary">
+          Edit Ticket
         </Link>
       </div>
 
@@ -120,6 +156,12 @@ export default function TicketDetailPage() {
         </header>
 
         <TicketMeta ticket={ticket} />
+
+        <TicketStatusActions
+          ticket={ticket}
+          userRole={user?.role}
+          onStatusChange={handleStatusChange}
+        />
 
         <section className="ticket-detail-page__description" aria-labelledby="description-heading">
           <h2 id="description-heading">Description</h2>

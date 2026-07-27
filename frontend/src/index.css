@@ -43,6 +43,15 @@ h1 {
   background: #cbd5e1;
 }
 
+.button--primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.button--primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
 .button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
