@@ -47,3 +47,33 @@ a.button {
   align-items: center;
   text-decoration: none;
 }
+
+.ticket-detail-page__comments {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.ticket-detail-page__comments-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ticket-detail-page__comments-header h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  color: #0f172a;
+}
+
+.ticket-detail-page__comments-count {
+  font-size: 0.875rem;
+  color: #64748b;
+}
