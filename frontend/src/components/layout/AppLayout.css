@@ -1,0 +1,7 @@
+.app-layout {
+  min-height: 100vh;
+}
+
+.app-layout__content {
+  min-height: calc(100vh - 4rem);
+}
