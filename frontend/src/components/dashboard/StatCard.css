@@ -1,0 +1,82 @@
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.25rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+a.stat-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.stat-card__value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stat-card__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.stat-card--neutral .stat-card__value {
+  color: #334155;
+}
+
+.stat-card--info .stat-card__value {
+  color: #1d4ed8;
+}
+
+.stat-card--primary .stat-card__value {
+  color: #4338ca;
+}
+
+.stat-card--success .stat-card__value {
+  color: #15803d;
+}
+
+.stat-card--warning .stat-card__value {
+  color: #b45309;
+}
+
+.stat-card--danger .stat-card__value {
+  color: #b91c1c;
+}
+
+.stat-card--info,
+.stat-card--primary,
+.stat-card--success,
+.stat-card--warning,
+.stat-card--danger {
+  border-left: 4px solid currentColor;
+}
+
+.stat-card--info {
+  border-left-color: #3b82f6;
+}
+
+.stat-card--primary {
+  border-left-color: #6366f1;
+}
+
+.stat-card--success {
+  border-left-color: #22c55e;
+}
+
+.stat-card--warning {
+  border-left-color: #f59e0b;
+}
+
+.stat-card--danger {
+  border-left-color: #ef4444;
+}

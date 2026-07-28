@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { listTickets } from '../api/tickets'
 import EmptyState from '../components/common/EmptyState'
@@ -12,13 +13,23 @@ import TicketFilters, {
 import { getApiErrorMessage } from '../utils/errors'
 import './TicketListPage.css'
 
+function filtersFromSearchParams(searchParams) {
+  return {
+    search: searchParams.get('search') || '',
+    status: searchParams.get('status') || '',
+    priority: searchParams.get('priority') || '',
+    category: searchParams.get('category') || '',
+  }
+}
+
 export default function TicketListPage() {
+  const [searchParams] = useSearchParams()
   const [tickets, setTickets] = useState([])
   const [count, setCount] = useState(0)
   const [page, setPage] = useState(1)
   const [hasNext, setHasNext] = useState(false)
   const [hasPrevious, setHasPrevious] = useState(false)
-  const [filters, setFilters] = useState(EMPTY_FILTERS)
+  const [filters, setFilters] = useState(() => filtersFromSearchParams(searchParams))
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 

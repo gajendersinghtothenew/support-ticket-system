@@ -5,7 +5,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from accounts.models import UserProfile
 from tickets.models import Ticket
-from tickets.views import TicketDetailView, TicketListCreateView
+from tickets.views import TicketDetailView, TicketListCreateView, TicketStatsView
 
 User = get_user_model()
 
@@ -165,3 +165,22 @@ class TicketAPITestCase(TestCase):
         force_authenticate(request, user=self.agent)
         response = TicketListCreateView.as_view()(request)
         self.assertEqual(response.data["count"], 1)
+
+    def test_ticket_stats_for_customer(self):
+        request = self.factory.get("/api/tickets/stats/")
+        force_authenticate(request, user=self.user)
+        response = TicketStatsView.as_view()(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["total"], 1)
+        self.assertEqual(response.data["by_status"]["open"], 1)
+        self.assertIn("recent_tickets", response.data)
+        self.assertNotIn("assigned_to_me", response.data)
+
+    def test_ticket_stats_for_agent(self):
+        request = self.factory.get("/api/tickets/stats/")
+        force_authenticate(request, user=self.agent)
+        response = TicketStatsView.as_view()(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("assigned_to_me", response.data)
+        self.assertIn("unassigned", response.data)
+        self.assertIn("urgent_open", response.data)

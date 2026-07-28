@@ -2,6 +2,7 @@ from accounts.permissions import is_agent_or_admin
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from tickets.filters import TicketFilter
 from tickets.models import Ticket
@@ -11,6 +12,34 @@ from tickets.serializers import (
     TicketListSerializer,
     TicketSerializer,
 )
+from tickets.services.stats import build_ticket_stats
+
+
+def get_scoped_ticket_queryset(user):
+    queryset = Ticket.objects.select_related("created_by", "assigned_to")
+    if not is_agent_or_admin(user):
+        queryset = queryset.filter(created_by=user)
+    return queryset
+
+
+class TicketStatsView(APIView):
+    """
+    GET /api/tickets/stats/ — summary counts for the dashboard.
+    """
+
+    permission_classes = [TicketPermission]
+
+    def get(self, request):
+        queryset = get_scoped_ticket_queryset(request.user)
+        is_staff = is_agent_or_admin(request.user)
+        stats = build_ticket_stats(queryset, request.user, is_staff)
+        recent_tickets = queryset[:5]
+        stats["recent_tickets"] = TicketListSerializer(
+            recent_tickets,
+            many=True,
+            context={"request": request},
+        ).data
+        return Response(stats)
 
 
 class TicketListCreateView(generics.ListCreateAPIView):
@@ -24,10 +53,7 @@ class TicketListCreateView(generics.ListCreateAPIView):
     filterset_class = TicketFilter
 
     def get_queryset(self):
-        queryset = Ticket.objects.select_related("created_by", "assigned_to")
-        if not is_agent_or_admin(self.request.user):
-            queryset = queryset.filter(created_by=self.request.user)
-        return queryset
+        return get_scoped_ticket_queryset(self.request.user)
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -59,7 +85,4 @@ class TicketDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TicketSerializer
 
     def get_queryset(self):
-        queryset = Ticket.objects.select_related("created_by", "assigned_to")
-        if not is_agent_or_admin(self.request.user):
-            queryset = queryset.filter(created_by=self.request.user)
-        return queryset
+        return get_scoped_ticket_queryset(self.request.user)

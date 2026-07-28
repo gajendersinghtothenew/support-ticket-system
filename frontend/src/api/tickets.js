@@ -25,6 +25,10 @@ export async function listTickets(params = {}) {
   return apiClient(endpoint)
 }
 
+export async function getTicketStats() {
+  return apiClient('/tickets/stats/')
+}
+
 export async function getTicket(id) {
   return apiClient(`/tickets/${id}/`)
 }
